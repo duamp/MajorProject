@@ -1,0 +1,154 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include "SparkFun_Qwiic_Keypad_Arduino_Library.h" //Click here to get the library: http://librarymanager/All#SparkFun_keypad
+#include <U8x8lib.h>
+#define REDLED 4
+#include <Servo.h>
+
+KEYPAD keypad1; //Create instance of this object
+Servo myservo;
+char store[3] = {};
+auto display = U8X8_SSD1306_128X64_NONAME_HW_I2C(U8X8_PIN_NONE);
+int key = false;
+
+//set up fundamentals
+void setup() {
+  Serial.begin(9600);
+  display.begin(); // start up the OLED display
+  display.setFlipMode(0); // set to 1 or 0, depending on orientation of board
+  display.clearDisplay();                     // blank display
+  display.setFont(u8x8_font_chroma48medium8_r); // set font
+  display.setCursor(0,0);
+  myservo.attach(2);
+  pinMode(REDLED, OUTPUT);
+  servoOn();
+
+  if (keypad1.begin() == false)   // Note, using begin() like this will use default I2C address, 0x4B. 
+                  // You can pass begin() a different address like so: keypad1.begin(Wire, 0x4A).
+  {
+    Serial.println("Keypad  not appear to be connected.");
+    while (1);
+  }
+
+//send Potentiometer data
+}
+void sendPotentiometerData() {
+ const auto value = analogRead(A0);
+ const byte data[] = {0, 0, highByte(value), lowByte(value)};
+ Serial.write(data, 4);
+ Serial.println();
+}
+
+void checkAdmin(){ //check Admin external access
+const auto recievedData = Serial.read(); //assign data from Java
+char buf[16];                            // format the data
+sprintf(buf, "%03d", recievedData);  
+
+    if (recievedData == 48) {
+      display.clear();
+      display.println("LOCKED"); 
+      while(2>1){
+        delay(1000);
+        digitalWrite(REDLED, HIGH); 
+      }
+    }
+}
+
+//Test if code is correct
+void unlock(){
+    int i = 0; 
+    int attempts = 3; 
+    int a = 0;
+    while(a < 3){
+    char storage[4] = {};
+    display.print("Password: ");
+    while(i < 4) { //4 character password
+      keypad1.updateFIFO();  // necessary for keypad to pull button from stack to readable register
+      char button = keypad1.getButton();
+        if (button == -1) { 
+          Serial.println("Error"); delay(1000);
+        }
+        else if (button != 0) { //max 4 characters
+            if (button == '*') {
+             int i = 5; return; }
+            else  {
+              display.print(button); //paste button
+              storage[i] = button;
+              i++; //increment 
+               }
+          }
+    }
+    i = 0;
+    display.println(""); 
+    //password
+    int password = 1234;
+    int entered_code = atoi(&storage[0]);
+    if (entered_code == password){
+      key = true;
+    }
+    
+    if (key == true){
+            checkAdmin();
+            sendPotentiometerData();
+            const auto value = analogRead(A0);
+            while(analogRead(A0) == 0){ //wait for Potentiometer 
+              //do nothing
+            }
+            display.println("");
+            display.println("Welcome");
+            attempts = 4;
+            a = 0;
+        servoOff();
+            int p = 0;
+            while(p == 0){ 
+              //repeat until wanted to lock box
+              keypad1.updateFIFO();
+              char new_button = keypad1.getButton(); //check button
+                if (new_button == '#')
+                {
+                  p = 1;
+                  display.println("goodbye");
+                  key = false;
+    
+                  delay(1000);
+                  display.clear();
+    
+                }
+            }
+            servoOn();
+          }
+          else {
+          attempts = attempts - 1; //reduce attemps 
+          display.println(""); display.print("Tries left: "); display.print(attempts);  display.println(""); //display
+          delay(2005); 
+          display.clear(); 
+          }
+           a++;
+ }
+}
+void servoOn(){
+  for (int c = 90; c >= 0; c--) { //180 small movements. aka 180 degrees
+    myservo.write(c);                            
+  }  
+}
+
+void servoOff(){
+  for (int a = 0; a <= 90; a++) 
+  { //1800 small movements. aka 180 degrees
+  myservo.write(a);
+  }  
+}
+
+//display message if user fails
+void finalmessage(){
+  display.println("");display.print("Incorrect"); delay(1500); 
+  display.print("."); delay(750); display.print("."); delay(750); display.print(".");delay(750);
+  display.println("Bye");
+  while(true); //Block out user
+}
+
+void loop() {
+  delay(1000);
+  unlock();
+  finalmessage();
+}
