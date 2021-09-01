@@ -71,9 +71,8 @@ Test 1
 This was the main test to determine if my equipment was comprised. I purchased the Servo
 motor and the keypad from digikey and had to demonstrate that they functioned correctly. To do
 this I downloaded sample programs to test each device separately, making sure the connections
-were set up. Thanks to Arduino’s example Sweep, Figure (1). Thanks to Nathan Seidle, at
-SparkFun Electronics for this example code to demonstrate if the keypad is operating expectedly,
-Figure (2). Both pieces of equipment ran expectedly. This process saved me a lot of time by
+were set up. Thanks to Nathan Seidle, at SparkFun Electronics for this example code to demonstrate 
+if the keypad is operating expectedly. Both pieces of equipment ran expectedly. This process saved me a lot of time by
 demonstrating the technology was indeed working and problems that I would most likely
 encounter would be with software.
 
@@ -81,13 +80,12 @@ encounter would be with software.
 Test 2
 The second tests were smaller and throughout the whole process which determined if the code
 was doing what it was intended to do. This was determined by sending time and potentiometer
-data to Java, the graph, similar to Lab I with a few of my implementations. This was shown in
-Figure (3) where I determined if my results were the same as the lab or if they were of my
-implementations, the different non-constant time intervals, were me logging in with different ID
-at the time I logged in, unlike the lab. I also needed to determine if the buttons in Java were
+data to Java, the graph, similar to Lab I with a few of my implementations. I determined if my results 
+were the same as the lab or if they were of my implementations, the different non-constant time intervals, 
+were me logging in with different ID at the time I logged in, unlike the lab. I also needed to determine if the buttons in Java were
 being listened to and sent to the Arduino to lock the program or to turn on the red LED. I put a
 label on the left side of the screen when the “Remove Access” button is pressed “OFF”, which
-blocks the user only if they enter a correct password. Figure (4) is an example of a function that
+blocks the user only if they enter a correct password. To debug, a function was created that
 was separated from the main loop, allowing me to easily determine if something was wrong, and
 if so where it was. I had in total around 6 functions that all allowed me to identify which parts of
 my code were wrong when I was debugging, and this was important for sorting my code and
